@@ -3,20 +3,33 @@
 <head>
   <meta charset="UTF-8">
   <title>Admin Chat</title>
-  <link rel="stylesheet" href="admin.css">
   <style>
     body { font-family: sans-serif; padding: 20px; }
     #messages { border: 1px solid #ccc; padding: 10px; max-height: 400px; overflow-y: auto; margin-bottom: 10px; }
     .msg { margin: 5px 0; }
     .msg.user { color: green; }
     .msg.bot { color: blue; }
+    .msg.admin { color: red; }
+    #login-section, #chat-section { display: none; }
+    #status { font-weight: bold; margin-bottom: 15px; }
+    button { padding: 8px 12px; }
   </style>
 </head>
 <body>
-  <h2>Chat với người dùng</h2>
-  <div id="messages"></div>
-  <input type="text" id="reply-input" placeholder="Nhập tin trả lời..." />
-  <button id="reply-btn">Gửi</button>
+
+  <h2>Trang chat dành cho Admin</h2>
+  <div id="status">Đang tải...</div>
+
+  <div id="login-section">
+    <p>Vui lòng đăng nhập bằng tài khoản Google:</p>
+    <button id="login-btn">Đăng nhập bằng Google</button>
+  </div>
+
+  <div id="chat-section">
+    <div id="messages"></div>
+    <input type="text" id="reply-input" placeholder="Nhập tin trả lời..." />
+    <button id="reply-btn">Gửi</button>
+  </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-app.js";
@@ -30,6 +43,14 @@
       orderBy
     } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-firestore.js";
 
+    import {
+      getAuth,
+      onAuthStateChanged,
+      signInWithPopup,
+      GoogleAuthProvider
+    } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-auth.js";
+
+    // Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyAWZxmiIk0r7KISrJgCFlKgLr7YN1tTLl8",
       authDomain: "my-profile-chat.firebaseapp.com",
@@ -40,44 +61,87 @@
       measurementId: "G-DBPQFQY5VR"
     };
 
+    const ADMIN_UID = "TB6ozQWQqPdBHbHIOM4r39vqdix1";
+
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
-    const messagesRef = collection(db, "messages");
+    const auth = getAuth();
+    const provider = new GoogleAuthProvider();
+
+    const statusDiv = document.getElementById("status");
+    const loginBtn = document.getElementById("login-btn");
+    const loginSection = document.getElementById("login-section");
+    const chatSection = document.getElementById("chat-section");
 
     const messagesDiv = document.getElementById("messages");
     const input = document.getElementById("reply-input");
     const btn = document.getElementById("reply-btn");
 
-    const q = query(messagesRef, orderBy("createdAt"));
-    onSnapshot(q, snapshot => {
-      messagesDiv.innerHTML = "";
-      snapshot.forEach(doc => {
-        const d = doc.data();
-        const div = document.createElement("div");
-        div.classList.add("msg", d.sender);
-        div.innerHTML = `<b>${d.sender}:</b> ${d.text}`;
-        messagesDiv.appendChild(div);
+    let currentUser = null;
+
+    // Giao diện đăng nhập
+    loginBtn.onclick = () => {
+      signInWithPopup(auth, provider).catch(err => {
+        alert("Lỗi đăng nhập: " + err.message);
       });
-      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    };
+
+    // Kiểm tra trạng thái đăng nhập
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        currentUser = user;
+        const uid = user.uid;
+
+        if (uid === ADMIN_UID) {
+          statusDiv.innerHTML = `🟢 Đăng nhập thành công với quyền Admin (${user.email})`;
+          loginSection.style.display = "none";
+          chatSection.style.display = "block";
+          setupChat();
+        } else {
+          statusDiv.innerHTML = `🔴 Tài khoản không có quyền Admin (UID: ${uid})`;
+          loginSection.style.display = "none";
+        }
+      } else {
+        statusDiv.innerText = "Chưa đăng nhập.";
+        loginSection.style.display = "block";
+      }
     });
 
-    btn.onclick = async () => {
-      const text = input.value.trim();
-      if (text) {
+    // Hàm thiết lập chat
+    function setupChat() {
+      const messagesRef = collection(db, "messages");
+      const q = query(messagesRef, orderBy("createdAt"));
+
+      onSnapshot(q, snapshot => {
+        messagesDiv.innerHTML = "";
+        snapshot.forEach(doc => {
+          const d = doc.data();
+          const div = document.createElement("div");
+          div.classList.add("msg", d.sender);
+          div.innerHTML = `<b>${d.sender}:</b> ${d.text}`;
+          messagesDiv.appendChild(div);
+        });
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+      });
+
+      btn.onclick = async () => {
+        const text = input.value.trim();
+        if (!text) return;
+
         await addDoc(messagesRef, {
-          sender: "bot",
+          sender: "admin",
           text,
           createdAt: serverTimestamp()
         });
         input.value = "";
-      }
-    };
-    input.addEventListener("keypress", function (e) {
-  if (e.key === "Enter" && input.value.trim() !== "") {
-    btn.click();  // Giả lập nhấn nút gửi khi nhấn Enter
-  }
-});
+      };
 
+      input.addEventListener("keypress", function (e) {
+        if (e.key === "Enter" && input.value.trim() !== "") {
+          btn.click();
+        }
+      });
+    }
   </script>
 </body>
 </html>
