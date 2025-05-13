@@ -5,121 +5,156 @@
 }
 
 body {
-  background-color: #1e1e2f;
+  background: linear-gradient(145deg, #1a1a2e, #16213e);
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   color: #fff;
   padding: 30px;
-  height: 100%;
+  height: 100vh;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
+/* Tiêu đề */
 h2 {
-  margin-bottom: 20px;
-  font-size: 28px;
-  color: #00c6ff;
+  margin-bottom: 25px;
+  font-size: 30px;
+  color: #00f2fe;
   text-align: center;
-  font-weight: 600;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  font-weight: bold;
+  text-shadow: 0 0 8px rgba(0, 242, 254, 0.6);
 }
 
+/* Khu vực hiển thị tin nhắn */
 #messages {
-  background-color: #2e2e3e;
-  border-radius: 15px;
+  flex: 1;
+  background: rgba(46, 46, 62, 0.85);
+  border-radius: 16px;
   padding: 20px;
-  max-height: 500px;
   overflow-y: auto;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-  margin-bottom: 30px;
-  transition: max-height 0.3s ease-in-out;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+  margin-bottom: 25px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
+/* Tin nhắn */
 .msg {
-  margin-bottom: 20px;
-  padding: 12px 18px;
-  border-radius: 12px;
+  padding: 14px 20px;
+  border-radius: 14px;
+  max-width: 70%;
   line-height: 1.6;
-  max-width: 75%;
   word-wrap: break-word;
-  animation: fadeIn 0.3s ease;
-  background: rgba(0, 0, 0, 0.1);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  position: relative;
+  animation: fadeIn 0.4s ease;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  backdrop-filter: blur(5px);
+  transition: transform 0.2s ease;
+}
+
+.msg:hover {
+  transform: translateY(-2px);
 }
 
 .user {
-  background-color: #3a3f58;
+  background: rgba(0, 198, 255, 0.2);
   align-self: flex-start;
-  border-left: 6px solid #00c6ff;
-  padding-left: 16px;
+  border-left: 4px solid #00c6ff;
 }
 
 .bot {
-  background-color: #4a5068;
+  background: rgba(255, 140, 0, 0.2);
   align-self: flex-end;
-  border-left: 6px solid #ff8c00;
-  padding-left: 16px;
+  border-left: 4px solid #ff8c00;
 }
 
 .msg b {
+  font-weight: bold;
   display: block;
   margin-bottom: 6px;
-  font-weight: bold;
+  font-size: 13px;
   color: #ccc;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
+/* Thanh nhập tin nhắn */
 #input-section {
   display: flex;
   gap: 12px;
-  padding-top: 10px;
+  margin-top: auto;
 }
 
 #reply-input {
   flex: 1;
   padding: 14px;
   font-size: 16px;
-  border-radius: 8px;
-  border: 2px solid #33384f;
+  border-radius: 12px;
+  border: none;
   outline: none;
-  background-color: #33384f;
+  background: #2c2f4a;
   color: #fff;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  transition: border-color 0.3s ease;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
 }
 
 #reply-input:focus {
-  border-color: #00c6ff;
+  border: 2px solid #00c6ff;
+  background: #333753;
 }
 
+/* Nút gửi */
 #reply-btn {
   padding: 14px 22px;
   font-size: 16px;
-  background-color: #00c6ff;
-  color: #fff;
+  background: linear-gradient(135deg, #00c6ff, #0072ff);
+  color: white;
   border: none;
-  border-radius: 8px;
+  border-radius: 12px;
   cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.3s ease;
-  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+  font-weight: bold;
+  box-shadow: 0 4px 10px rgba(0,198,255,0.5);
+  transition: all 0.3s ease;
 }
 
 #reply-btn:hover {
-  background-color: #009acd;
+  background: linear-gradient(135deg, #00a4cc, #005fcc);
   transform: scale(1.05);
 }
 
 #reply-btn:active {
-  transform: scale(1.02);
+  transform: scale(1);
 }
 
+/* Hiệu ứng fadeIn cho tin nhắn */
 @keyframes fadeIn {
   from {
-      opacity: 0;
-      transform: translateY(15px);
+    opacity: 0;
+    transform: translateY(20px);
   }
   to {
-      opacity: 1;
-      transform: translateY(0);
+    opacity: 1;
+    transform: translateY(0);
   }
+}
+
+/* Scrollbar đẹp */
+#messages::-webkit-scrollbar {
+  width: 10px;
+}
+
+#messages::-webkit-scrollbar-track {
+  background: #2e2e3e;
+  border-radius: 10px;
+}
+
+#messages::-webkit-scrollbar-thumb {
+  background: #00c6ff;
+  border-radius: 10px;
+  transition: background 0.3s;
+}
+
+#messages::-webkit-scrollbar-thumb:hover {
+  background: #009acd;
 }
